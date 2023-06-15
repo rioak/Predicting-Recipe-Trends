@@ -1,5 +1,5 @@
 # Predicting-Recipe-Trends
-<img src="https://food.fnr.sndimg.com/content/dam/images/food/fullset/2018/2/26/0/FN_anchorage-restaurant-guide-bear-tooth-grill-burger_s4x3.jpg.rend.hgtvcom.406.203.suffix/1519683068985.jpeg">
+<img src="https://img.sndimg.com/food/image/upload/f_auto,c_thumb,q_55,w_1280,ar_16:9/v1/img/recipes/12/19/62/rImnjthbQVyfxmTOddl4_Tomato%20phyllo%20pizza%20121962-5.jpg">
 <figcaption style="opacity: 0.5;">source: food.com</figcaption>
 
 by Rio Aguina-Kang (raguinakang@ucsd.edu) and Judel Ancayan (jancayan@ucsd.edu)
@@ -17,6 +17,7 @@ The predictions made by the models were then scored based on the regression coef
 ```py
 print(unique_recipe.head().to_markdown(index=False))
 ```
+
 |   minutes |   calories |   n_ingredients |   year |   n_steps |   average rating |
 |:----------|------------|-----------------|--------|-----------|-----------------:|
 |        50 |      386.1 |               7 |   2008 |        11 |                3 |
@@ -24,7 +25,6 @@ print(unique_recipe.head().to_markdown(index=False))
 |        45 |      326.6 |               9 |   2008 |         7 |                3 |
 |        45 |      577.7 |               9 |   2008 |        11 |                5 |
 |        25 |      386.9 |               9 |   2008 |         8 |                5 |
-
 ---
 
 ## Baseline Model
@@ -88,6 +88,7 @@ These hyperparameters represent the optimal configuration identified through gri
 The final model's performance is an improvement over the baseline model, as it incorporates additional features and a more sophisticated modeling algorithm. The baseline model's performance was relatively low, with scores of 0.02566655266310225 for the train set and 0.0282273280524431 for the test set. The final model, with the optimized hyperparameters identified through GridSearchCV, aims to enhance the predictive capabilities by leveraging the added features and adjusting the neural network's architecture. The selected hyperparameters represent the best combination that maximizes the model's performance based on the chosen scoring metric.
 
 **Final Model Performance**
+
 Using the best hyperparameters obtained from the grid search, we rebuilt the pipeline with the best hyperparameters. The pipeline consists of feature engineering steps and the MLPRegressor model configured with the identified hyperparameters.
 
 The final model was trained on the training dataset (testing set represents 20% of the data) and evaluated on both the training and testing datasets. The performance of the final model is as follows:
@@ -110,6 +111,7 @@ The enhancements in the final model's performance can be attributed to the follo
 By incorporating these improvements, the final model demonstrates better accuracy in predicting the number of steps for recipes based on the given features.
 
 **Conclusion**
+
 In conclusion, we developed a final model using an MLPRegressor algorithm with optimized hyperparameters obtained through grid search. The model incorporated feature engineering steps to preprocess the data and improve its performance. The final model outperformed the baseline model in terms of accuracy, showcasing its enhanced predictive capabilities.
 
 Although our final model exhibited substantial improvement compared to the baseline model, we recognize that its accuracy implies the potential existence of other algorithms or features that could yield even higher scores. In terms of future directions, we aim to explore the incorporation of additional features such as tags and ingredients. Unfortunately, due to limitations in computational resources, we were unable to encode and analyze these features in our current model. However, we acknowledge that incorporating such information may provide valuable insights and potentially enhance the model's predictive performance.
