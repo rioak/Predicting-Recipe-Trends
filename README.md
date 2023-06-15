@@ -51,7 +51,14 @@ To create a baseline model that we could compare other models against, we develo
 
 In terms of feature representation, we have identified two numerical key features in our model. The 'year released' feature is considered quantitative, while the 'calories' feature is also quantitative in nature. While time in of itself is usually considered a continuous variable, since we are building our model on strictly the year that these recipes were released instead of including days, minutes, or seconds, we are considering them as a discrete numerical variable. On the other hand, calories is a continuous variable, taking on forms within a certain range or interval, and they can have an infinite number of possible values between any two specific values. Additonally, since calories can take on completely different values depending on the kinds of foods a recipe is making, we decided to standardize calories for our model to ensure consistency.
 
-Moving on to the performance of our model, the provided results indicate a train score of 0.02566655266310225 and a test score of 0.0282273280524431 (testing set represents 20% of the data). Ultimately, we consider these scores to be very low and both close in value regardless of testing or training sets, and we do not think this baseline model is "good". This suggests that our current model is not performing well in capturing the variability in the target variable (n_steps) based on the given features.
+Moving on to the performance of our model, the provided results indicate the scores: 
+
+- Train score: 0.027334136400747222
+- Test score: 0.020162972134046497
+
+(Note: testing set represents 20% of the data)
+
+Ultimately, we consider these scores to be very low. Both scores are close in value regardless of testing or training sets, and we do not think this baseline model is a satisfactory ("good") fit for predicting the number of steps for a recipe. This suggests that our current model is not performing well in capturing the variability in the target variable (n_steps) based on the given features.
 
 ---
 
@@ -103,7 +110,7 @@ The grid search was conducted, and the best hyperparameters were determined base
 
 These hyperparameters represent the optimal configuration identified through grid search, aiming to minimize the model's error and enhance its predictive capabilities.
 
-The final model's performance is an improvement over the baseline model, as it incorporates additional features and a more sophisticated modeling algorithm. The baseline model's performance was relatively low, with scores of 0.02566655266310225 for the train set and 0.0282273280524431 for the test set. The final model, with the optimized hyperparameters identified through GridSearchCV, aims to enhance the predictive capabilities by leveraging the added features and adjusting the neural network's architecture. The selected hyperparameters represent the best combination that maximizes the model's performance based on the chosen scoring metric.
+The final model's performance is an improvement over the baseline model, as it incorporates additional features and a more sophisticated modeling algorithm. The baseline model's performance was relatively low, with scores of 0.027 for the train set and 0.020 for the test set. The final model, with the optimized hyperparameters identified through GridSearchCV, aims to enhance the predictive capabilities by leveraging the added features and adjusting the neural network's architecture. The selected hyperparameters represent the best combination that maximizes the model's performance based on the chosen scoring metric.
 
 **Final Model Performance**
 
@@ -111,14 +118,14 @@ Using the best hyperparameters obtained from the grid search, we rebuilt the pip
 
 The final model was trained on the training dataset (testing set represents 20% of the data) and evaluated on both the training and testing datasets. The performance of the final model is as follows:
 
-- Final Train Score: 0.21698443137397583
-- Final Test Score: 0.2118140239135996
+- Final Train Score: 0.21626702979094825
+- Final Test Score: 0.21471498848249027
 
 The train score represents the model's performance on the training dataset, while the test score indicates the model's performance on the unseen testing dataset. These scores reflect the accuracy of the model in predicting the number of steps (n_steps) for recipes based on the given features.
 
 **Model Performance Analysis**
 
-Comparing the final model's performance to the baseline model, we observe an enourmous improvement in the predictive capabilities. The baseline model had much lower scores (Train Score: 0.02566655266310225, Test Score: 0.0282273280524431) compared to the final model. This indicates that the final model captures more variability in the target variable (n_steps) based on the selected features.
+Comparing the final model's performance to the baseline model, we observe an enourmous improvement in the predictive capabilities. The baseline model had much lower scores (Train Score: 0.027, Test Score: 0.020) compared to the final model. This indicates that the final model captures more variability in the target variable (n_steps) based on the selected features.
 
 The enhancements in the final model's performance can be attributed to the following factors:
 
@@ -159,7 +166,7 @@ The test statistics will be calculated in a similar manner:
 
 <iframe src="permutation.html" width=800 height=600 frameBorder=0></iframe>
 
-The p-value is calculated to be 0.096, which fails to reject the null hypothesis at a significance of 0.05.
+The p-value is calculated to be 0.101, which fails to reject the null hypothesis at a significance of 0.05.
 
 
 **Conclusion**
