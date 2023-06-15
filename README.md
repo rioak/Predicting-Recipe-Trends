@@ -1,5 +1,5 @@
 # Predicting-Recipe-Trends
-<img src="https://img.sndimg.com/food/image/upload/w_621,h_349,c_fill,fl_progressive,q_80/v1/img/recipes/20/22/44/AU2lov1lQ8O9BU2Svopb_Thai%20Satay%20Noodles%20202244_final%202.jpg">
+<img src="https://food.fnr.sndimg.com/content/dam/images/food/fullset/2018/2/26/0/FN_anchorage-restaurant-guide-bear-tooth-grill-burger_s4x3.jpg.rend.hgtvcom.406.203.suffix/1519683068985.jpeg">
 <figcaption style="opacity: 0.5;">source: food.com</figcaption>
 
 by Rio Aguina-Kang (raguinakang@ucsd.edu) and Judel Ancayan (jancayan@ucsd.edu)
@@ -18,7 +18,7 @@ The predictions made by the models were then scored based on the regression coef
 print(unique_recipe.head().to_markdown(index=False))
 ```
 |   minutes |   calories |   n_ingredients |   year |   n_steps |   average rating |
-|----------:|-----------:|----------------:|-------:|----------:|-----------------:|
+|:----------|------------|-----------------|--------|-----------|-----------------:|
 |        50 |      386.1 |               7 |   2008 |        11 |                3 |
 |        55 |      377.1 |               8 |   2008 |         6 |                3 |
 |        45 |      326.6 |               9 |   2008 |         7 |                3 |
@@ -39,21 +39,80 @@ Moving on to the performance of our model, the provided results indicate a train
 
 ## Final Model
 
-The final model we developed aimed to improve the prediction of the number of steps (n_steps) for recipes. We added additional features to enhance the model's performance based on our understanding of the data generating process. The features we incorporated are 'minutes', 'calories', 'year', and 'n_ingredients'. Here's why we believe these features are beneficial for the prediction task:
+The final model we developed aimed to improve our prediction of the number of steps (n_steps) for recipes. 
+
+**Feature Selection**
+
+In addition to the original features used in the baseline model (minutes, calories, year, and n_ingredients), we introduced feature engineering steps to preprocess the data. The features we incorporated are 'minutes', 'calories', 'year', and 'n_ingredients'. Here's why we believe these features are beneficial for the prediction task:
 
 - 'Minutes': We utilized the 'minutes' feature by applying a Binarizer transformation, categorizing it as "hour or more" or "less than an hour." This feature captures the duration of recipe preparation, which can potentially impact the number of steps required. Recipes with longer durations might involve more complex steps, leading to a higher number of steps.
 
 - 'Calories': We included the 'calories' feature and standardized it using StandardScaler. Caloric content can provide insights into the complexity of recipes and the ingredients used. Recipes with higher caloric content might involve more elaborate steps or additional ingredients, leading to a higher number of steps.
 
-- 'Year': We considered the 'year' feature, representing the year the recipe was released. The year of recipe publication can be an indicator of culinary trends, advancements in cooking techniques, and evolving recipe formats. By incorporating this feature, we capture potential variations in the number of steps over time.
+- 'Year': We considered the 'year' feature, representing the year the recipe was released. The year of recipe publication can be an indicator of culinary trends, advancements in cooking techniques, and evolving recipe formats. By incorporating this feature, we capture potential variations in the number of steps over time. Additionally, our previous exploratory analyses in our <a href="https://rioak.github.io/Recipe-Complexity-Trends/">Recipe Complexity Trends</a> project suggested an increase in recipe steps over time.
 
 - 'N_ingredients': We included the 'n_ingredients' feature, representing the number of ingredients in a recipe. More ingredients generally require additional preparation steps, such as chopping, peeling, or combining, which can influence the number of steps involved.
 
-For the modeling algorithm, we chose the MLPRegressor (Multi-Layer Perceptron Regressor) from scikit-learn's neural_network module. This algorithm is capable of learning complex relationships between the features and the target variable. Through its architecture of multiple layers and nonlinear activation functions, it can capture intricate patterns in the data.
+**Modeling Algorithm and Hyperparameter Tuning**
 
-To determine the best hyperparameters, we employed a GridSearchCV approach. We specified a range of hyperparameters to explore, such as 'hidden_layer_sizes', 'activation', 'solver', 'alpha', 'learning_rate', 'learning_rate_init', 'max_iter', and 'early_stopping'. The GridSearchCV method exhaustively searches through the hyperparameter combinations and selects the best-performing set of hyperparameters based on the chosen scoring metric.
+For our final model, we chose the MLPRegressor algorithm, a neural network-based regressor capable of capturing complex relationships in the data. The initial pipeline configuration included a hidden layer size of 20 neurons. We then conducted hyperparameter tuning using grid search to find the best combination of hyperparameters that maximizes the model's performance.
+
+The hyperparameters explored during grid search included 'hidden_layer_sizes', 'activation', 'solver', 'alpha', 'learning_rate', and 'early_stopping'.
+
+```py
+hyperparams = {
+    'regress__hidden_layer_sizes': [(10,), (20,)],
+    'regress__activation': ['relu', 'tanh'],
+    'regress__solver': ['lbfgs', 'adam'],
+    'regress__alpha': [0.0001, 0.001],
+    'regress__learning_rate': ['constant', 'adaptive'],
+    'regress__early_stopping': [True, False]
+}
+```
+
+By searching over different combinations of these hyperparameters, we aimed to identify the optimal configuration that produces the best predictive performance.
+
+**Grid Search Results and Best Hyperparameters**
+
+The grid search was conducted, and the best hyperparameters were determined based on the mean squared error scores. The best hyperparameters found were as follows:
+
+- Activation function: ReLU
+- Alpha (L2 penalty parameter): 0.0001
+- Early stopping: True
+- Hidden layer sizes: (10,)
+- Learning rate: Constant
+- Solver: LBFGS
+
+These hyperparameters represent the optimal configuration identified through grid search, aiming to minimize the model's error and enhance its predictive capabilities.
 
 The final model's performance is an improvement over the baseline model, as it incorporates additional features and a more sophisticated modeling algorithm. The baseline model's performance was relatively low, with scores of 0.02566655266310225 for the train set and 0.0282273280524431 for the test set. The final model, with the optimized hyperparameters identified through GridSearchCV, aims to enhance the predictive capabilities by leveraging the added features and adjusting the neural network's architecture. The selected hyperparameters represent the best combination that maximizes the model's performance based on the chosen scoring metric.
+
+**Final Model Performance**
+Using the best hyperparameters obtained from the grid search, we rebuilt the pipeline with the best hyperparameters. The pipeline consists of feature engineering steps and the MLPRegressor model configured with the identified hyperparameters.
+
+The final model was trained on the training dataset (testing set represents 20% of the data) and evaluated on both the training and testing datasets. The performance of the final model is as follows:
+
+- Final Train Score: 0.21698443137397583
+- Final Test Score: 0.2118140239135996
+
+The train score represents the model's performance on the training dataset, while the test score indicates the model's performance on the unseen testing dataset. These scores reflect the accuracy of the model in predicting the number of steps (n_steps) for recipes based on the given features.
+
+**Model Performance Analysis**
+
+Comparing the final model's performance to the baseline model, we observe an enourmous improvement in the predictive capabilities. The baseline model had much lower scores (Train Score: 0.02566655266310225, Test Score: 0.0282273280524431) compared to the final model. This indicates that the final model captures more variability in the target variable (n_steps) based on the selected features.
+
+The enhancements in the final model's performance can be attributed to the following factors:
+
+- Feature Engineering: The additional feature engineering steps, such as binarizing the 'minutes' feature and standardizing the 'calories' feature, helped in transforming and normalizing the data. These transformations made the features more suitable for the modeling process, potentially capturing important patterns and relationships in the data.
+
+- Optimized Hyperparameters: The grid search allowed us to systematically explore different combinations of hyperparameters. By identifying the best hyperparameters, we optimized the model's configuration, enabling it to better capture the underlying patterns in the data.
+
+By incorporating these improvements, the final model demonstrates better accuracy in predicting the number of steps for recipes based on the given features.
+
+**Conclusion**
+In conclusion, we developed a final model using an MLPRegressor algorithm with optimized hyperparameters obtained through grid search. The model incorporated feature engineering steps to preprocess the data and improve its performance. The final model outperformed the baseline model in terms of accuracy, showcasing its enhanced predictive capabilities.
+
+Although our final model exhibited substantial improvement compared to the baseline model, we recognize that its accuracy implies the potential existence of other algorithms or features that could yield even higher scores. In terms of future directions, we aim to explore the incorporation of additional features such as tags and ingredients. Unfortunately, due to limitations in computational resources, we were unable to encode and analyze these features in our current model. However, we acknowledge that incorporating such information may provide valuable insights and potentially enhance the model's predictive performance.
 
 ---
 
@@ -70,9 +129,9 @@ The test statistics will be calculated in a similar manner:
 
 - **Test Statistic**: Difference in Regression Coefficients based on Average Rating
 <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-  <mtext>Regressino Coefficients of Recipes with High Average Rating</mtext>
+  <mtext>Regression Coefficients of Recipes with High Average Rating</mtext>
   <mo>&#x2212;<!-- − --></mo>
-  <mtext>Regressino Coefficients of Recipes with Low Average Rating</mtext>
+  <mtext>Regression Coefficients of Recipes with Low Average Rating</mtext>
 </math> 
 
  The test statistics found by this permutation test are graphed below, with the red line representing the observed test statistic:
