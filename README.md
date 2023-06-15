@@ -6,13 +6,13 @@ by Rio Aguina-Kang (raguinakang@ucsd.edu) and Judel Ancayan (jancayan@ucsd.edu)
 
 ---
 
-## Introduction
+## Framing the Problem
 
 In this project, we explored the relationship between time and the complexity of recipes. Using a dataset from <a href="https://www.food.com/">food.com</a>, we gain access to 231,536 observations across 17 distinct features. To effectively evaluate recipe complexity, we utilized a key feature called "n_steps," which represents the number of steps required to prepare a recipe. Additionally, to investigate temporal trends, we considered the "submitted" date column, which encompasses recipe submissions spanning from 2008 to 2018. Finally, we utilized the "id" column to identify unique recipes within the dataset.
 
 ---
 
-## Cleaning and Exploratory Data Analysis
+## Baseline Model
 **Data Cleaning**
 
 To begin, we utilized two different csv files: a csv containing recipe data and a csv containing interaction (comments and ratings) data. We imported both of these csvs as dataframes, and merged the two using a left merge on recipe data. With the merged dataframe, we changed the rating column such that all of the "0" values became NaN values due to the nature of these values representing comments without ratings. Following this, we added a column to the dataframe called "average rating", which represented the average rating from 1 to 5 that the recipe recived. Additionally, we typecasted the "submitted" column (which is the date the recipe was submitted) and the "date" column (which is when the comment was submitted) from string type columns into pandas datetime columns. 
@@ -49,7 +49,7 @@ This line chart highlights the observed relationship between the number of steps
 
 ---
 
-## Assessment of Missingness
+## Fairness Analysis
 
 **NMAR Analysis**
 
@@ -77,10 +77,10 @@ details about this dataframe are provided in the Data Cleaning section
 
 **Analyzing the dependency of the missingness of the "rating" column and the "minutes" column**
 
-In order to analyze the dependency of the minutes column, we performed a permutation test with a significance level of 0.01 and 100 trials. The following hypotheses were used to lead this test:
+...
 
-- **Null Hypothesis**: the missingness of the ratings column does not depend on the minutes of the recipe
-- **Alternative Hypothesis**: the missingness of the ratings column does depend on the minutes of the recipe
+- **Null Hypothesis**: ...
+- **Alternative Hypothesis**: ...
 
 The test statistic for this hypothesis was the absolute difference between the mean minutes of the ratings that are not missing subtracted by the mean minutes of the ratings that are missing. This is because if there is a significant difference between the two means, it would imply a relationship between the value of the "minutes" column and the missingness of the "rating" column.
 
@@ -123,40 +123,5 @@ The p-value for this permutation test ends up being 0.00, which results in rejec
 **Conclusion**
 
 While the missingness of the rating column does not seem to depend on the minutes column, it does seem to depend on the date column. This suggests the missingness of the rating column is potentially Missing At Random (MAR).
-
-
-
----
-
-## Hypothesis Testing
-
-<img src="https://i.gifer.com/1PQg.gif">
-
-To answer the question of whether or not online recipes have shown have become my complex over the last 10 years, we define our null and alternative hypotheses as such:
-
-- **Null Hypothesis**: The average number of steps in 2018 is *the same* as in 2008, and any difference is a result of random chance
-
-- **Alternative Hypothesis**: The average number of steps in 2018 is *greater* than it was in 2008. The observed difference in our samples cannot be explained by random chance alone.
-
-To estimate an increase in recipe complexity between 2008 and 2018, we use a test statistic of the difference in mean number of steps between 2018 and 2008.
-
-- **Test Statistic**: Difference in group means
-<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-  <mtext>mean number of steps in 2018</mtext>
-  <mo>&#x2212;<!-- − --></mo>
-  <mtext>mean number of steps in 2008</mtext>
-</math> 
-
-Since the recipe steps in 2008 is a different group from that of 2018, we run a permutation test. In this test, we generate new data by shuffling the "n_steps" column within the data to compute a single test statistic, calculating the differences in random distributions between recipe steps in 2018 and 2008. We do this over the course of 1000 trials, creating a new test statistic and appending it to an array of previous test statistics at each iteration. We also compute an observed test statistic from the original data
-
-Here, we plotted the distribution of test statistics, as well as the obvserved test statistic noted as a red line in the plot below:
-
-<iframe src="hypothesis_test.html" width=800 height=600 frameBorder=0></iframe>
-
-Using the array of test statistics, we calculated the p-value by averaging the number of test statistics greater than our observed value, resulting in a p-value of 0.
-
-**Conclusion**
-
-Since the p-value is 0 and lower than the significance level of 0.05, we reject the null hypothesis that the number of steps in 2008 and the number of steps in 2018 come from the same distribution.
 
 ---
