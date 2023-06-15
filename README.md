@@ -8,11 +8,28 @@ by Rio Aguina-Kang (raguinakang@ucsd.edu) and Judel Ancayan (jancayan@ucsd.edu)
 
 ## Framing the Problem
 
-In this project, our objective was to explore what variables would affect recipe complexity. In order to explore this idea, we built two regression models: a baseline linear regressor and a final decision tree regressor. 
+In this project, our objective was to explore the factors influencing recipe complexity. We constructed two regression models: a baseline linear regressor and a final multilayer perceptron (MLP) regressor.
 
-The response variables for both of these models is complexity of the recipe, which we defined as the number of steps a recipe has. We believed that the number of steps was the best represenation for a recipe's complexity, because very simple recipe's (such as making a sandwhich) have a very low amount of steps (gathering ingredients and assembling the sandwhich). On the other hand, more complex recipe's(such as making a pizza) would have more steps(mixing ingredients, kneading dough, etc). The features used to predict the number of steps were the time the recipe took (in minutes), amount of calories, number of ingredients, and the year the recipe was released. Each of these features were hypothesized to have some kind of correlation with the number of steps in a recipe.
+The response variable in both models is the recipe complexity, which we defined as the number of steps required to complete the recipe. We selected the number of steps as a measure of complexity because simpler recipes tend to have fewer steps (such as making a sandwich), while more complex recipes involve multiple intricate steps (like making a pizza). Our hypothesis was that certain features would correlate with the number of steps in a recipe, and we aimed to investigate these relationships.
 
-The predictions made by the models were then scored based on the regression coefficient, with higher coefficients relating towhich features have the greatest impact on recipe complexity. We chose the regression coefficient as a grading metric over the RMSE, because number of steps is an integer that is hard to perfectly guess. Therefore the RMSE will tend to be much higher, implying poor correlations, whereas the regression coefficient will be normalized to a number between 0 and 1. The data that we used to build these models underwent a cleaning process detailed in <a href='https://rioak.github.io/Recipe-Complexity-Trends/'>this project's</a> data cleaning section and shown below (note that only the columns relevent to this project are shown):
+The features used to predict the number of steps were as follows:
+
+- Minutes: The duration of the recipe in minutes.
+- Calories: The estimated number of calories in the recipe.
+- Ingredients: The count of ingredients used in the recipe.
+- Year: The year when the recipe was released.
+
+We believed that these features could potentially provide insights into the recipe complexity. The models were trained to predict the number of steps based on these input features.
+
+To evaluate the models' performance, we utilized the regression coefficient as a scoring metric. The regression coefficient indicates the strength and direction of the relationship between each feature and the recipe complexity. We preferred this metric over the root mean square error (RMSE) since accurately predicting the exact number of steps can be challenging due to its discrete nature. By using the regression coefficient, we normalized the scores to a range between 0 and 1, facilitating comparison and interpretation of feature importance.
+
+Prior to training the models, the data underwent a thorough cleaning process, as outlined in the data cleaning section of this project (refer to <a href='https://rioak.github.io/Recipe-Complexity-Trends/'>this project's</a> data cleaning section). The relevant columns utilized in this project were retained for analysis.
+
+Both the baseline linear regressor and the final MLP regressor were fitted to the cleaned dataset. The models' predictions were evaluated based on their regression coefficients, allowing us to identify the features that exerted the most significant influence on recipe complexity.
+
+Please note that the complete details of the data cleaning process and the regression coefficient analysis can be found in the referenced project's documentation.
+
+The dataframe below represents the first 5 rows of the dataset we used:
 
 ```py
 print(unique_recipe.head().to_markdown(index=False))
@@ -25,15 +42,16 @@ print(unique_recipe.head().to_markdown(index=False))
 |        45 |      326.6 |               9 |   2008 |         7 |                3 |
 |        45 |      577.7 |               9 |   2008 |        11 |                5 |
 |        25 |      386.9 |               9 |   2008 |         8 |                5 |
+
 ---
 
 ## Baseline Model
 
 To create a baseline model that we could compare other models against, we developed a linear regression model to predict the number of steps (n_steps) for recipes using two features: the year the recipe was released and the number of calories. Our model incorporates various components from the scikit-learn library to create a pipeline that performs preprocessing steps and fits a linear regression model.
 
-In terms of feature representation, we have identified two numerical key features in our model. The 'year released' feature is considered quantitative, while the 'calories' feature is also quantitative in nature. While time in of itself is usually considered a continuous variable, since we are building our model on strictly the year that these recipes were released instead of including days, minutes, or seconds, we are considering them as a discrete numerical variable. On the other hand, calories is a continuous variable, taking on forms within a certain range or interval, and they can have an infinite number of possible values between any two specific values. In addition, In the case of "calories," since calories can take on completely different forms depending on the kinds of foods a recipe is making, we decided to standardize calories for our model to ensure consistency.
+In terms of feature representation, we have identified two numerical key features in our model. The 'year released' feature is considered quantitative, while the 'calories' feature is also quantitative in nature. While time in of itself is usually considered a continuous variable, since we are building our model on strictly the year that these recipes were released instead of including days, minutes, or seconds, we are considering them as a discrete numerical variable. On the other hand, calories is a continuous variable, taking on forms within a certain range or interval, and they can have an infinite number of possible values between any two specific values. Additonally, since calories can take on completely different values depending on the kinds of foods a recipe is making, we decided to standardize calories for our model to ensure consistency.
 
-Moving on to the performance of our model, the provided results indicate a train score of 0.02566655266310225 and a test score of 0.0282273280524431. As a group, we consider these scores to be very low and close in value, ultimately a "bad" model. This suggests that our current model is not performing well in capturing the variability in the target variable (n_steps) based on the given features. We understand that further evaluation and improvement efforts are required to enhance the predictive capabilities of our model.
+Moving on to the performance of our model, the provided results indicate a train score of 0.02566655266310225 and a test score of 0.0282273280524431 (testing set represents 20% of the data). Ultimately, we consider these scores to be very low and both close in value regardless of testing or training sets, and we do not think this baseline model is "good". This suggests that our current model is not performing well in capturing the variability in the target variable (n_steps) based on the given features.
 
 ---
 
@@ -125,7 +143,7 @@ In order to analyze the fairness of our final model, we performed a permutation 
 - **Null Hypothesis**: The model's regression coefficient will be the same between high average ratin and low average rating, and any difference is due to random chance
 - **Alternative Hypothesis**: The model's score is biased and its score depends on whether or not the recipe has a high or low average rating
 
-In order to perform this permutation test, we split the data into two groups: recipes with a high rating (defined as having an average rating greater than 3.5) and recipes with a low rating(average rating of 3.5 or lower). We then used these groups to calculate regression coefficients on the final model (we used the regression coefficient as opposed to the RMSE for the same reason stated under framing the problem), and subtracted the regression coefficient. The resulting value is our observed statistic. 
+In order to perform this permutation test, we split the data into two groups: recipes with a high rating (defined as having an average rating greater than 3.5) and recipes with a low rating (average rating of 3.5 or lower). We then used these groups to calculate regression coefficients on the final model (we used the regression coefficient as opposed to the RMSE for the same reason stated under framing the problem), and subtracted the regression coefficient. The resulting value is our observed statistic. 
 
 The test statistics will be calculated in a similar manner:
 
@@ -141,7 +159,7 @@ The test statistics will be calculated in a similar manner:
 
 <iframe src="permutation.html" width=800 height=600 frameBorder=0></iframe>
 
-The p-value is calculated to be 0.065, which fails to reject the null hypothesis at a significance of 0.05.
+The p-value is calculated to be 0.096, which fails to reject the null hypothesis at a significance of 0.05.
 
 
 **Conclusion**
