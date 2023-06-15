@@ -13,39 +13,32 @@ In this project, we explored the relationship between time and the complexity of
 ---
 
 ## Baseline Model
-**Data Cleaning**
 
-To begin, we utilized two different csv files: a csv containing recipe data and a csv containing interaction (comments and ratings) data. We imported both of these csvs as dataframes, and merged the two using a left merge on recipe data. With the merged dataframe, we changed the rating column such that all of the "0" values became NaN values due to the nature of these values representing comments without ratings. Following this, we added a column to the dataframe called "average rating", which represented the average rating from 1 to 5 that the recipe recived. Additionally, we typecasted the "submitted" column (which is the date the recipe was submitted) and the "date" column (which is when the comment was submitted) from string type columns into pandas datetime columns. 
+To create a baseline model that we could compare other models against, we developed a linear regression model to predict the number of steps (n_steps) for recipes using two features: the year the recipe was released and the number of calories. Our model incorporates various components from the scikit-learn library to create a pipeline that performs preprocessing steps and fits a linear regression model.
 
-**Exploratory Data Analysis**
+In terms of feature representation, we have identified two numerical key features in our model. The 'year released' feature is considered quantitative, while the 'calories' feature is also quantitative in nature. While time in of itself is usually considered a continuous variable, since we are building our model on strictly the year that these recipes were released instead of including days, minutes, or seconds, we are considering them as a discrete numerical variable. On the other hand, calories is a continuous variable, taking on forms within a certain range or interval, and they can have an infinite number of possible values between any two specific values. In addition, In the case of "calories," since calories can take on completely different forms depending on the kinds of foods a recipe is making, we decided to standardize calories for our model to ensure consistency.
 
-To be able to perform our exploratory data analysis, we grouped the dataframe by id, and used the "max" aggregate to preserve data per recipe, as well as ensure there were no duplicate recipes in the dataframe. The first few rows of the cleaned dataframe with all the listed changes is shown here (please note that the dataframe shown here is different from the dataframe used in the assessment of missingness. The dataframe used in that section is this dataframe before it was grouped by id, in order to preserve all of the separate interactions by recipe):
+Moving on to the performance of our model, the provided results indicate a train score of 0.02566655266310225 and a test score of 0.0282273280524431. As a group, we consider these scores to be very low and close in value, ultimately a "bad" model. This suggests that our current model is not performing well in capturing the variability in the target variable (n_steps) based on the given features. We understand that further evaluation and improvement efforts are required to enhance the predictive capabilities of our model.
 
-```py
-print(unique_recipe.head()[["submitted","n_steps"]].to_markdown(index=True))
-```
+---
 
-|     id | submitted           |   n_steps |
-|:-------|---------------------|----------:|
-| 275022 | 2008-01-01 00:00:00 |        11 |
-| 275024 | 2008-01-01 00:00:00 |         6 |
-| 275026 | 2008-01-01 00:00:00 |         7 |
-| 275030 | 2008-01-01 00:00:00 |        11 |
-| 275032 | 2008-01-01 00:00:00 |         8 |
+## Final Model
 
+The final model we developed aimed to improve the prediction of the number of steps (n_steps) for recipes. We added additional features to enhance the model's performance based on our understanding of the data generating process. The features we incorporated are 'minutes', 'calories', 'year', and 'n_ingredients'. Here's why we believe these features are beneficial for the prediction task:
 
-*Univariate Analysis*
+- 'Minutes': We utilized the 'minutes' feature by applying a Binarizer transformation, categorizing it as "hour or more" or "less than an hour." This feature captures the duration of recipe preparation, which can potentially impact the number of steps required. Recipes with longer durations might involve more complex steps, leading to a higher number of steps.
 
-<iframe src="univariate_EDA.html" width=800 height=600 frameBorder=0></iframe>
+- 'Calories': We included the 'calories' feature and standardized it using StandardScaler. Caloric content can provide insights into the complexity of recipes and the ingredients used. Recipes with higher caloric content might involve more elaborate steps or additional ingredients, leading to a higher number of steps.
 
-The above graph charts the distribution of the number of steps each recipe has. The graph is right skewed, with nearly 90% of recipes requiring less than 20 steps.
+- 'Year': We considered the 'year' feature, representing the year the recipe was released. The year of recipe publication can be an indicator of culinary trends, advancements in cooking techniques, and evolving recipe formats. By incorporating this feature, we capture potential variations in the number of steps over time.
 
+- 'N_ingredients': We included the 'n_ingredients' feature, representing the number of ingredients in a recipe. More ingredients generally require additional preparation steps, such as chopping, peeling, or combining, which can influence the number of steps involved.
 
-*Bivariate Analysis*
+For the modeling algorithm, we chose the MLPRegressor (Multi-Layer Perceptron Regressor) from scikit-learn's neural_network module. This algorithm is capable of learning complex relationships between the features and the target variable. Through its architecture of multiple layers and nonlinear activation functions, it can capture intricate patterns in the data.
 
-<iframe src="bivariate_EDA.html" width=800 height=600 frameBorder=0></iframe>
+To determine the best hyperparameters, we employed a GridSearchCV approach. We specified a range of hyperparameters to explore, such as 'hidden_layer_sizes', 'activation', 'solver', 'alpha', 'learning_rate', 'learning_rate_init', 'max_iter', and 'early_stopping'. The GridSearchCV method exhaustively searches through the hyperparameter combinations and selects the best-performing set of hyperparameters based on the chosen scoring metric.
 
-This line chart highlights the observed relationship between the number of steps in a recipe and the year it was submitted. The plot displays a clear positive trend upwards from 2008 until 2016, where there is a drop from approximately 12.7 steps to 12 steps, but returns to an increasing relationship and rises past the original 2015 year average of ~12.7 steps to ~13.6 steps and beyond until 2018. These observations suggest a positive correlation between the two, showcasing that as the year increases, so does the average number of steps per recipe.
+The final model's performance is an improvement over the baseline model, as it incorporates additional features and a more sophisticated modeling algorithm. The baseline model's performance was relatively low, with scores of 0.02566655266310225 for the train set and 0.0282273280524431 for the test set. The final model, with the optimized hyperparameters identified through GridSearchCV, aims to enhance the predictive capabilities by leveraging the added features and adjusting the neural network's architecture. The selected hyperparameters represent the best combination that maximizes the model's performance based on the chosen scoring metric.
 
 ---
 
