@@ -8,7 +8,22 @@ by Rio Aguina-Kang (raguinakang@ucsd.edu) and Judel Ancayan (jancayan@ucsd.edu)
 
 ## Framing the Problem
 
-In this project, we explored the relationship between time and the complexity of recipes. Using a dataset from <a href="https://www.food.com/">food.com</a>, we gain access to 231,536 observations across 17 distinct features. To effectively evaluate recipe complexity, we utilized a key feature called "n_steps," which represents the number of steps required to prepare a recipe. Additionally, to investigate temporal trends, we considered the "submitted" date column, which encompasses recipe submissions spanning from 2008 to 2018. Finally, we utilized the "id" column to identify unique recipes within the dataset.
+In this project, our objective was to explore what variables would affect recipe complexity. In order to explore this idea, we built two regression models: a baseline linear regressor and a final decision tree regressor. 
+
+The response variables for both of these models is complexity of the recipe, which we defined as the number of steps a recipe has. We believed that the number of steps was the best represenation for a recipe's complexity, because very simple recipe's (such as making a sandwhich) have a very low amount of steps (gathering ingredients and assembling the sandwhich). On the other hand, more complex recipe's(such as making a pizza) would have more steps(mixing ingredients, kneading dough, etc). The features used to predict the number of steps were the time the recipe took (in minutes), amount of calories, number of ingredients, and the year the recipe was released. Each of these features were hypothesized to have some kind of correlation with the number of steps in a recipe.
+
+The predictions made by the models were then scored based on the regression coefficient, with higher coefficients relating towhich features have the greatest impact on recipe complexity. We chose the regression coefficient as a grading metric over the RMSE, because number of steps is an integer that is hard to perfectly guess. Therefore the RMSE will tend to be much higher, implying poor correlations, whereas the regression coefficient will be normalized to a number between 0 and 1. The data that we used to build these models underwent a cleaning process detailed in <a href='https://rioak.github.io/Recipe-Complexity-Trends/'>this project's</a> data cleaning section and shown below (note that only the columns relevent to this project are shown):
+
+```py
+print(unique_recipe.head().to_markdown(index=False))
+```
+|   minutes |   calories |   n_ingredients |   year |   n_steps |   average rating |
+|----------:|-----------:|----------------:|-------:|----------:|-----------------:|
+|        50 |      386.1 |               7 |   2008 |        11 |                3 |
+|        55 |      377.1 |               8 |   2008 |         6 |                3 |
+|        45 |      326.6 |               9 |   2008 |         7 |                3 |
+|        45 |      577.7 |               9 |   2008 |        11 |                5 |
+|        25 |      386.9 |               9 |   2008 |         8 |                5 |
 
 ---
 
@@ -44,77 +59,32 @@ The final model's performance is an improvement over the baseline model, as it i
 
 ## Fairness Analysis
 
-**NMAR Analysis**
+In order to analyze the fairness of our final model, we performed a permutation test on our data. This test was run with 1000 trials at a significance of 0.05. The following hypotheses were used to lead this test:
 
-We believe that the "Ratings" column in the merged dataframe between recipe data and interaction data is Not Missing At Random (NMAR). This is because all of the missing values in that column were intentionally made missing if the original value was zero, as ratings can only be between numbers 1 and 5.
+- **Null Hypothesis**: The model's regression coefficient will be the same between high average ratin and low average rating, and any difference is due to random chance
+- **Alternative Hypothesis**: The model's score is biased and its score depends on whether or not the recipe has a high or low average rating
 
+In order to perform this permutation test, we split the data into two groups: recipes with a high rating (defined as having an average rating greater than 3.5) and recipes with a low rating(average rating of 3.5 or lower). We then used these groups to calculate regression coefficients on the final model (we used the regression coefficient as opposed to the RMSE for the same reason stated under framing the problem), and subtracted the regression coefficient. The resulting value is our observed statistic. 
 
-**Missingness Dependency**
+The test statistics will be calculated in a similar manner:
 
-Both missingness analyses were performed using the following dataframe, and the missingness of the "rating" column:
-
-```py
-print(average_food[["name","id","minutes","date","rating","user_id"]].head().to_markdown(index=False))
-```
-
-| name                                 |     id |   minutes | date                |   rating |          user_id |
-|:-------------------------------------|--------|-----------|---------------------|----------|-----------------:|
-| 1 brownies in the world    best ever | 333281 |        40 | 2008-11-19 00:00:00 |        4 | 386585           |
-| 1 in canada chocolate chip cookies   | 453467 |        45 | 2012-01-26 00:00:00 |        5 | 424680           |
-| 412 broccoli casserole               | 306168 |        40 | 2008-12-31 00:00:00 |        5 |  29782           |
-| 412 broccoli casserole               | 306168 |        40 | 2009-04-13 00:00:00 |        5 |      1.19628e+06 |
-| 412 broccoli casserole               | 306168 |        40 | 2013-08-02 00:00:00 |        5 | 768828           |
-
-details about this dataframe are provided in the Data Cleaning section
-
-
-**Analyzing the dependency of the missingness of the "rating" column and the "minutes" column**
-
-...
-
-- **Null Hypothesis**: ...
-- **Alternative Hypothesis**: ...
-
-The test statistic for this hypothesis was the absolute difference between the mean minutes of the ratings that are not missing subtracted by the mean minutes of the ratings that are missing. This is because if there is a significant difference between the two means, it would imply a relationship between the value of the "minutes" column and the missingness of the "rating" column.
-
-- **Test Statistic**: Difference in means minutes of ratings
+- **Test Statistic**: Difference in Regression Coefficients based on Average Rating
 <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-  <mtext>mean minutes of the ratings not missing</mtext>
+  <mtext>Regressino Coefficients of Recipes with High Average Rating</mtext>
   <mo>&#x2212;<!-- − --></mo>
-  <mtext>mean minutes of the ratings missing</mtext>
+  <mtext>Regressino Coefficients of Recipes with Low Average Rating</mtext>
 </math> 
 
- The findings of the permutation test are summarized by the following graph, where the red line represents the observed test statistic:
+ The test statistics found by this permutation test are graphed below, with the red line representing the observed test statistic:
 
 
-<iframe src="minutes_missing.html" width=800 height=600 frameBorder=0></iframe>
+<iframe src="permutation.html" width=800 height=600 frameBorder=0></iframe>
 
-The p-value for this permutation test ends up being 0.08, which results in failing to reject the null hypothesis at a significance of 0.01.
+The p-value is calculated to be 0.065, which fails to reject the null hypothesis at a significance of 0.05.
 
-**Analyzing the dependency of the missingness of the "rating" column and the "date" column**
-
-In order to analyze the dependency of the date column, we performed a permutation test with a significance level of 0.01 and 100 trials. The following hypotheses were used to lead this test:
-
-- **Null Hypothesis**: the missingness of the ratings column does not depend on the date of the interaction
-- **Alternative Hypothesis**: the missingness of the ratings column does depend on the date of the interaction
-
-The test statistic for this hypothesis was the difference between the median date of the ratings that are not missing subtracted by the median date of the ratings that are missing. This is because if there is a significant difference between the two medians, it would imply a relation between the value of the "date" column and the missingness of the "rating" column.
-
-- **Test Statistic**: Difference in median dates of ratings
-<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-  <mtext>median dates of the ratings not missing</mtext>
-  <mo>&#x2212;<!-- − --></mo>
-  <mtext>median dates of the ratings missing</mtext>
-</math> 
-
-The findings of the permutation test are summarized by the following graph, where the red line represents the observed test statistic:
-
-<iframe src="date_missing.html" width=800 height=600 frameBorder=0></iframe>
-
-The p-value for this permutation test ends up being 0.00, which results in rejecting the null hypothesis at a significance of 0.01.
 
 **Conclusion**
 
-While the missingness of the rating column does not seem to depend on the minutes column, it does seem to depend on the date column. This suggests the missingness of the rating column is potentially Missing At Random (MAR).
+Since the permutation test failed to reject the null hypothesis, it is likely (although not definitive) that our model is fair.
 
 ---
